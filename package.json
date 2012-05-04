@@ -1,0 +1,11 @@
+{
+  "name":			"node-example",
+  "version":		"0.0.1",
+  "dependencies": {
+    "express":		">=2.5.9",
+	"mongojs":		">=0.3.2",
+	"sync":			">=0.2.0",
+	"request":		">=2.9.202",
+	"MD5":			">=0.0.0"
+  }
+}
