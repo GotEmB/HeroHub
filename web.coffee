@@ -40,7 +40,7 @@ server.configure ->
 server.post "/github", (req, res, next) ->
 	func ->
 		payload = req.body.payload
-		if payload.repository.private then return "Private repositories are currently not supported.\n"
+		return "Private repositories are currently not supported.\n" if payload.repository.private
 		ghPath = "https://api.github.com/repos/#{payload.repository.owner.name}/#{payload.repository.name}"
 		ret = ""
 		for commit in payload.commits # Bad Code: Need to first sort by datestamps in descending order.

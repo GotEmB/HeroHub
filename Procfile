@@ -1,1 +1,1 @@
-web: node web.js
+web: iced web-iced.coffee

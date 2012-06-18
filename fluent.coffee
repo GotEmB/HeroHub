@@ -8,6 +8,7 @@ exports.Dictify = (obj) ->
 				value: @[key]
 	ret
 
+# Array
 Array::select = (fun) -> @forEach (item) -> fun(item)
 
 Array::where = (fun) ->
@@ -72,6 +73,15 @@ Array::orderByDesc = (fun) ->
 Array::distinct = (fun) ->
 	g1 = @groupBy fun
 	g1.select (x) -> x.values[0]
+
+# String
+String::lines = (fun) ->
+	return @lines().where fun if fun
+	@split("\r\n").selectMany((x) -> x.split "\r").selectMany((x) -> x.split "\n").where (x) -> x isnt ""
+
+String::words = (fun) ->
+	return @words().where fun if fun
+	@split(" ").selectMany((x) -> x.split "\t").where (x) -> x isnt ""
 
 # JSON extension
 JSON.parseWithDate = (json) ->
