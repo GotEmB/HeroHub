@@ -25,7 +25,7 @@ heroku herohub-experimental: hashtag deploy-experimental
 
 * Add an **environment variable** `hh-key` with a random string as its value.
 
-* In Github, add an **HTTP Post** hook with the url, `http://herohub.heroku.com/github/<hh-key>`. Where `<hh-key>` is the random string.
+* In Github, add an **HTTP Post** hook with the url, `http://deploy-repo.heroku.com/github/<hh-key>`. Where `<hh-key>` is the random string.
 
 ## Usage
 You can trigger the deployment by either:
