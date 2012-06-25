@@ -1,12 +1,12 @@
 {
-  "name":					"HeroHub",
-  "version":				"0.0.1",
-  "dependencies": {
-    "express":				">=2.5.9",
-	"sync":					">=0.2.0",
-	"request":				">=2.9.202",
-	"MD5":					">=0.0.0",
-	"coffee-script"			">=1.3.3",
-	"iced-coffee-script"	">=1.3.3a"
-  }
+	"name": 					"HeroHub",
+	"version": 					"0.0.1",
+	"dependencies": {
+		"express":				">=2.5.9",
+		"sync":					">=0.2.0",
+		"request":				">=2.9.202",
+		"MD5": 					">=0.0.0",
+		"coffee-script":		">=1.3.3",
+		"iced-coffee-script":	">=1.3.3a"
+	}
 }

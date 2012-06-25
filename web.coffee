@@ -1,4 +1,4 @@
-# Depreciated. --> web-iced.coffee
+# Depreciated. Using IcedCoffeeScript. --> web-iced.coffee
 # Load Modules
 express	= require "express"
 crypto	= require "crypto"
