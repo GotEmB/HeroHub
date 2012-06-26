@@ -9,11 +9,11 @@ exports.Dictify = (obj) ->
 	ret
 
 # Array
-Array::select = (fun) -> @forEach (item) -> fun(item)
+Array::select = (fun) -> fun item for item in this
 
 Array::where = (fun) ->
 	ret = []
-	@forEach (item) -> ret.push item if fun(item) is true
+	@forEach (item) -> ret.push item if fun item
 	ret
 
 Array::first = (fun) ->

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ -f ".ssh/id_rsa"];
+then
+	echo "An RSA key already exists in '.ssh'"
+	echo "Exiting"
+fi
+
+ssh-keygen -f .ssh/id_rsa -N ""
+
+echo "Setup Successful"
