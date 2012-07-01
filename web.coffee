@@ -1,13 +1,11 @@
 # Load Modules
-express	= require "express"
-crypto	= require "crypto"
-http	= require "http"
-fs		= require "fs"
-coffee	= require "coffee-script"
 fluent	= require "./fluent"
+express	= require "express"
+fs		= require "fs"
 request	= require "request"
 md5		= require "MD5"
 moment	= require "moment"
+child_p	= require "child_process"
 
 # Helper Methods
 String::getHashtags = -> @match /(#[A-Za-z0-9-_]+)/g
