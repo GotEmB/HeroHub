@@ -6,6 +6,9 @@ then
 	echo "Exiting"
 fi
 
-ssh-keygen -f .ssh/id_rsa -N ""
+ssh-keygen -f .ssh/id_rsa -N "" -C HeroHub
+heroku keys:add .ssh/id_rsa.pub
+heroku apps:create
+git push heroku HEAD
 
 echo "Setup Successful"

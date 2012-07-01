@@ -23,13 +23,11 @@ heroku herohub: branch production
 heroku herohub-experimental: hashtag deploy-experimental
 ```
 
-* Clone this repository and name it `<yourapp>-deploy`.
+* Clone this repository and name it, say `myDeployer`.
 
 * Run 'setup-repo'.
 
-* Upload the public key, `.ssh/id_rsa.pub`, to your heroku account.
-
-* In Github, add an **HTTP Post** hook with the url, `http://<yourdeployapp-identifier>.heroku.com/deploy`.
+* In Github, add an **HTTP Post** hook with the url, `http://<myDeployer-identifier>.heroku.com/deploy`. `<myDeployer-identifier>` is the name of the deployer app created by setup-repo.
 
 ## Usage
 You can trigger the deployment by either:
@@ -37,3 +35,6 @@ You can trigger the deployment by either:
 * Committing to a **branch** specified in the `.deploy` file and then pushing it to GitHub. 
 
 * Mentioning a **hashtag** specified in the `.deploy` file in the commit and then pushing it to GitHub.
+
+
+**Note:** One DeployerApp can be used for any number of apps within the same heroku account.

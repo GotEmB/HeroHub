@@ -4,7 +4,6 @@ crypto	= require "crypto"
 http	= require "http"
 fs		= require "fs"
 coffee	= require "coffee"
-Sync	= require "sync"
 fluent	= require "./fluent"
 request	= require "request"
 md5		= require "MD5"
@@ -13,9 +12,9 @@ moment	= require "moment"
 # Helper Methods
 String::getHashtags -> @match /(#[A-Za-z0-9-_]+)/g
 
-mlog = ""
 log = (message) ->
-	mlog +=  do (new Date).toUTCString + ": #{message}"
+	@prototype.msg = "" unless @prototype.msg
+	@prototype.msg +=  do (new Date).toUTCString + ": #{message}"
 
 cloneRepo = (repo, folder) ->
 	stderr = ""
@@ -78,6 +77,9 @@ processGitHub = (payload) ->
 	return "Private repositories are currently not supported." if payload.repository.private
 	ghPath = "https://api.github.com/repos/#{payload.repository.owner.name}/#{payload.repository.name}"
 	payload.commits = payload.commits.orderByDesc (x) -> moment x.timestamp
+	doneTriggers =
+		branches: []
+		hashtags: []
 	payload.commits.forEach (commit) ->
 		await request "#{ghPath}/git/trees/#{commit.id}", defer err, tree
 		unless rootTree.any((x) -> x.path is ".deploy")
@@ -88,7 +90,28 @@ processGitHub = (payload) ->
 			encoding: "utf-8",
 			defer err, dF
 		deployFile = parseDeployString dF
-		# ...
+		await request "#{ghPath}/branches", defer err, branches
+		deployFile.forEach (target) ->
+			return "#{commit.id}/.deploy: #{target.app.provider} targets are currently not supported.\n" if do target.app.provider.toLowerCase isnt "heroku"
+			runDoIt = ->
+				dTS = doItGitHub ghPath, commit, target.app.name, target.app.provider
+				log "#{commit.id}: #{if dTS.success then "Could not deploy commit. Details...\n#{dTS.message}" else "Deployed commit"}\n"
+				dTS.success
+			if target.trigger.type is "branch"
+				if branches.any ((x) -> x.name is target.trigger.target and x.commit.sha is commit.id and not doneTriggers.branches.contains x.name)
+					doneTriggers.branches.push target.trigger.target if do runDoIt
+			else if target.trigger.type is "hashtag"
+				if (do commit.message.getHashtags).except(doneTriggers.hashtags).contains target.trigger.target
+					doneTriggers.hashtags.push target.trigger.target if do runDoIt
 
+# Setup Server
+server = do express.createServer
+server.configure ->
+	server.use do express.logger
+	server.use do express.bodyParser
+	
 server.post "/deploy", (req, res, next) ->
 	return; #...
+
+# Start Server
+server.listen (port = process.env.PORT || 5000), -> console.log "Listening on #{port}"
