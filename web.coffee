@@ -2,19 +2,17 @@
 express	= require "express"
 crypto	= require "crypto"
 http	= require "http"
-fs		= require "fs"
-coffee	= require "coffee"
+fs	= require "fs"
+coffee	= require "coffee-script"
 fluent	= require "./fluent"
 request	= require "request"
-md5		= require "MD5"
+md5	= require "MD5"
 moment	= require "moment"
 
 # Helper Methods
 String::getHashtags -> @match /(#[A-Za-z0-9-_]+)/g
 
-log = (message) ->
-	@prototype.msg = "" unless @prototype.msg
-	@prototype.msg +=  do (new Date).toUTCString + ": #{message}"
+log = (message) -> console.log message
 
 cloneRepo = (repo, folder) ->
 	stderr = ""
@@ -92,15 +90,18 @@ processGitHub = (payload) ->
 		deployFile = parseDeployString dF
 		await request "#{ghPath}/branches", defer err, branches
 		deployFile.forEach (target) ->
-			return "#{commit.id}/.deploy: #{target.app.provider} targets are currently not supported.\n" if do target.app.provider.toLowerCase isnt "heroku"
+			if do target.app.provider.toLowerCase isnt "heroku"
+				log "#{payload.repository.name}:#{commit.id}/.deploy: #{target.app.provider} targets are not supported.\n"
+				return
 			runDoIt = ->
 				dTS = doItGitHub ghPath, commit, target.app.name, target.app.provider
-				log "#{commit.id}: #{if dTS.success then "Could not deploy commit. Details...\n#{dTS.message}" else "Deployed commit"}\n"
+				log "#{payload.repository.name}:#{commit.id} -> #{target.app.name}"
+				log if dTS.success then "Completed" else "Failed\n#{dTS.message}"
 				dTS.success
-			if target.trigger.type is "branch"
+			if target.trigger.type.toLowerCase is "branch"
 				if branches.any ((x) -> x.name is target.trigger.target and x.commit.sha is commit.id and not doneTriggers.branches.contains x.name)
 					doneTriggers.branches.push target.trigger.target if do runDoIt
-			else if target.trigger.type is "hashtag"
+			else if target.trigger.type.toLowerCase is "hashtag"
 				if (do commit.message.getHashtags).except(doneTriggers.hashtags).contains target.trigger.target
 					doneTriggers.hashtags.push target.trigger.target if do runDoIt
 
@@ -110,8 +111,9 @@ server.configure ->
 	server.use do express.logger
 	server.use do express.bodyParser
 	
-server.post "/deploy", (req, res, next) ->
-	return; #...
+server.post "/deploy/github", (req, res, next) ->
+	processGitHub req.body.payload
+	do res.send
 
 # Start Server
 server.listen (port = process.env.PORT || 5000), -> console.log "Listening on #{port}"
