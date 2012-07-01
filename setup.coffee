@@ -45,3 +45,5 @@ main = ->
 		console.info "Done"
 	
 	console.info "All processes completed successfully.\nYour deployer app identifier is '#{url[2]}' and is hosted at '#{url[0]}'."
+
+do main
