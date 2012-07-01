@@ -2,7 +2,7 @@
 
 fs = require "fs"
 cp = require "child_process"
-verbose = process.argv.indexOf "-v" isnt -1
+verbose = process.argv.indexOf("-v") isnt -1
 
 child = (prc, args, funs...) ->
 	funOut = funErr = funExit = null
@@ -44,7 +44,7 @@ main = ->
 	process.stdout.write "Creating Heroku App...#{if verbose then "\n" else ""}"
 	stdoe = ""
 	await child "heroku", ["apps:create"], ((data) -> stdoe += data), ((data) -> stdoe += data), defer exitcode
-	url = stdoe.match(/^(http:\/\/)([^ ]+)\.([^ ]+)(\.com\/)/m)[0]
+	url = stdoe.match(/^(http:\/\/)([^ ]+)\.([^ ]+)(\.com\/)/m)
 	console.info "Done"
 	
 	process.stdout.write "Pushing Deployer App to Heroku...#{if verbose then "\n" else ""}"

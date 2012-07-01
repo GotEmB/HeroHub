@@ -47,7 +47,7 @@
 
   cp = require("child_process");
 
-  verbose = process.argv.indexOf("-v" !== -1);
+  verbose = process.argv.indexOf("-v") !== -1;
 
   child = function() {
     var args, cps, funErr, funExit, funOut, funs, prc;
@@ -180,7 +180,7 @@
               }));
               __iced_deferrals._fulfill();
             })(function() {
-              url = stdoe.match(/^(http:\/\/)([^ ]+)\.([^ ]+)(\.com\/)/m)[0];
+              url = stdoe.match(/^(http:\/\/)([^ ]+)\.([^ ]+)(\.com\/)/m);
               console.info("Done");
               process.stdout.write("Pushing Deployer App to Heroku..." + (verbose ? "\n" : ""));
               stdoe = "";
