@@ -2,15 +2,15 @@
 express	= require "express"
 crypto	= require "crypto"
 http	= require "http"
-fs	= require "fs"
+fs		= require "fs"
 coffee	= require "coffee-script"
 fluent	= require "./fluent"
 request	= require "request"
-md5	= require "MD5"
+md5		= require "MD5"
 moment	= require "moment"
 
 # Helper Methods
-String::getHashtags -> @match /(#[A-Za-z0-9-_]+)/g
+String::getHashtags = -> @match /(#[A-Za-z0-9-_]+)/g
 
 log = (message) -> console.log message
 
@@ -110,7 +110,8 @@ server = do express.createServer
 server.configure ->
 	server.use do express.logger
 	server.use do express.bodyParser
-	
+
+# POST Request - GitHub
 server.post "/deploy/github", (req, res, next) ->
 	processGitHub req.body.payload
 	do res.send
