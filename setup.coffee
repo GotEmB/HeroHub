@@ -5,7 +5,7 @@ main = ->
 	cp = require "child_process"
 	
 	await fs.stat ".ssh/id_rsa", defer err, stats
-	if err? or err.code isnt "ENOENT"
+	if not err? or err.code isnt "ENOENT"
 		console.error "An RSA key already exists in '.ssh'"
 		console.info "Exiting. Nothing done."
 		return

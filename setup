@@ -67,7 +67,7 @@
       }));
       __iced_deferrals._fulfill();
     })(function() {
-      if ((typeof err !== "undefined" && err !== null) || err.code !== "ENOENT") {
+      if (!(typeof err !== "undefined" && err !== null) || err.code !== "ENOENT") {
         console.error("An RSA key already exists in '.ssh'");
         console.info("Exiting. Nothing done.");
         return;
