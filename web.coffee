@@ -1,7 +1,7 @@
 # Load Modules
-fluent	= require "./fluent"
 express	= require "express"
 fs		= require "fs"
+fluent	= require "./fluent"
 request	= require "request"
 md5		= require "MD5"
 moment	= require "moment"
@@ -15,8 +15,8 @@ log = (message) -> console.log message
 cloneRepo = (repo, folder) ->
 	stderr = ""
 	git = child_p.spawn "git", ["clone", repo, folder]
-	git.stderr.on (data) -> stderr += data
-	await git.on "exit", defer exitcode
+	git.stderr.on "data", (data) -> stderr += data
+	await git.exit.on defer exitcode
 	if stderr.indexOf("fatal") isnt -1
 		success:	false
 		message:	stderr
@@ -26,11 +26,11 @@ cloneRepo = (repo, folder) ->
 pushRepo = (repo, folder, commit) ->
 	stderr = ""
 	git = child_p.spawn "git", ["add", "."]
-	git.stderr.on (data) -> stderr += data
-	await git.on "exit", defer exitcode
+	git.stderr.on "data", (data) -> stderr += data
+	await git.exit.on defer exitcode
 	git = child_p.spawn "git", ["commit", "-m", "Building commit #{commit}."]
-	git.stderr.on (data) -> stderr += data
-	await git.on "exit", defer exitcode
+	git.stderr.on "data", (data) -> stderr += data
+	await git.exit.on defer exitcode
 	if stderr.indexOf("fatal") isnt -1
 		success:	false
 		message:	stderr

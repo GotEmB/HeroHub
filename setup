@@ -133,10 +133,10 @@
             process.stdout.write("Creating Heroku App...");
             cps = cp.spawn("heroku", ["apps:create"]);
             stdoe = "";
-            cps.stdout.on(function(data) {
+            cps.stdout.on("data", function(data) {
               return stdoe += data;
             });
-            cps.stderr.on(function(data) {
+            cps.stderr.on("data", function(data) {
               return stdoe += data;
             });
             (function(__iced_k) {
@@ -160,10 +160,10 @@
               process.stdout.write("Pushing Deployer App to Heroku...");
               cps = cp.spawn("git", ["push", "heroku"]);
               stdoe = "";
-              cps.stdout.on(function(data) {
+              cps.stdout.on("data", function(data) {
                 return stdoe += data;
               });
-              cps.stderr.on(function(data) {
+              cps.stderr.on("data", function(data) {
                 return stdoe += data;
               });
               (function(__iced_k) {

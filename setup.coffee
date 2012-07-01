@@ -25,8 +25,8 @@ main = ->
 	process.stdout.write "Creating Heroku App..."
 	cps = cp.spawn "heroku", ["apps:create"]
 	stdoe = ""
-	cps.stdout.on (data) -> stdoe += data
-	cps.stderr.on (data) -> stdoe += data
+	cps.stdout.on "data", (data) -> stdoe += data
+	cps.stderr.on "data", (data) -> stdoe += data
 	await cps.on "exit", defer exitcode
 	url = stdoe.match(/^(http:\/\/)([^ ]+)\.([^ ]+)(\.com\/)/m)[0]
 	console.info "Done"
@@ -34,8 +34,8 @@ main = ->
 	process.stdout.write "Pushing Deployer App to Heroku..."
 	cps = cp.spawn "git", ["push", "heroku"]
 	stdoe = ""
-	cps.stdout.on (data) -> stdoe += data
-	cps.stderr.on (data) -> stdoe += data
+	cps.stdout.on "data", (data) -> stdoe += data
+	cps.stderr.on "data", (data) -> stdoe += data
 	await cps.on "exit", defer exitcode
 	if (stdoe.match /failed/i)?
 		console.info "Failed"
