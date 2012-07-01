@@ -100,7 +100,7 @@
             filename: "setup.coffee",
             funcname: "main"
           });
-          cps.exit.on(__iced_deferrals.defer({
+          cps.on("exit", __iced_deferrals.defer({
             assign_fn: (function() {
               return function() {
                 return exitcode = arguments[0];
@@ -119,7 +119,7 @@
               filename: "setup.coffee",
               funcname: "main"
             });
-            cps.exit.on(__iced_deferrals.defer({
+            cps.on("exit", __iced_deferrals.defer({
               assign_fn: (function() {
                 return function() {
                   return exitcode = arguments[0];
@@ -145,7 +145,7 @@
                 filename: "setup.coffee",
                 funcname: "main"
               });
-              cps.exit.on(__iced_deferrals.defer({
+              cps.on("exit", __iced_deferrals.defer({
                 assign_fn: (function() {
                   return function() {
                     return exitcode = arguments[0];
@@ -172,7 +172,7 @@
                   filename: "setup.coffee",
                   funcname: "main"
                 });
-                cps.exit.on(__iced_deferrals.defer({
+                cps.on("exit", __iced_deferrals.defer({
                   assign_fn: (function() {
                     return function() {
                       return exitcode = arguments[0];

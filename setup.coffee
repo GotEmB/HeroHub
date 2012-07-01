@@ -14,12 +14,12 @@ main = ->
 	
 	process.stdout.write "Generating RSA Key for HeroHub..."
 	cps = cp.spawn "ssh-keygen", ["-f", ".ssh/keygen", "-N", "\"\"", "-C", "HeroHub"]
-	await cps.exit.on defer exitcode
+	await cps.on "exit", defer exitcode
 	console.info "Done"
 	
 	process.stdout.write "Uploading RSA Key to Heroku..."
 	cps = cp.spawn "heroku", ["keys:add", ".ssh/id_rsa.pub"]
-	await cps.exit.on defer exitcode
+	await cps.on "exit", defer exitcode
 	console.info "Done"
 	
 	process.stdout.write "Creating Heroku App..."
@@ -27,7 +27,7 @@ main = ->
 	stdoe = ""
 	cps.stdout.on (data) -> stdoe += data
 	cps.stderr.on (data) -> stdoe += data
-	await cps.exit.on defer exitcode
+	await cps.on "exit", defer exitcode
 	url = stdoe.match(/^(http:\/\/)([^ ]+)\.([^ ]+)(\.com\/)/m)[0]
 	console.info "Done"
 	
@@ -36,7 +36,7 @@ main = ->
 	stdoe = ""
 	cps.stdout.on (data) -> stdoe += data
 	cps.stderr.on (data) -> stdoe += data
-	await cps.exit.on defer exitcode
+	await cps.on "exit", defer exitcode
 	if (stdoe.match /failed/i)?
 		console.info "Failed"
 		console.error stdoe
