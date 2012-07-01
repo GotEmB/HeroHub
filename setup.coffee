@@ -1,9 +1,21 @@
 #!/usr/bin/env node
 
-main = ->
-	fs = require "fs"
-	cp = require "child_process"
-	
+fs = require "fs"
+cp = require "child_process"
+
+child = (prc, args, funOut, funErr) ->
+	verbose = process.argv.indexOf "-v" isnt -1
+	cps = cp.spawn prc, args
+	cps.stdout.on "data", (data) ->
+		process.stdout.write data if verbose
+		funOut data if funOut?
+	cps.stderr.on "data", (data) ->
+		process.stderr.write data if verbose
+		funErr data if funErr?
+	await cps.on "exit", defer exitcode
+	exitcode
+
+main = ->	
 	await fs.stat ".ssh/id_rsa", defer err, stats
 	if not err? or err.code isnt "ENOENT"
 		console.error "An RSA key already exists in '.ssh'"
@@ -13,30 +25,22 @@ main = ->
 	fs.mkdirSync ".ssh" if err? and err.code is "ENOENT"
 	
 	process.stdout.write "Generating RSA Key for HeroHub..."
-	cps = cp.spawn "ssh-keygen", ["-f", ".ssh/keygen", "-N", "\"\"", "-C", "HeroHub"]
-	await cps.on "exit", defer exitcode
+	child "ssh-keygen", ["-f", ".ssh/id_rsa", "-N", "\"\"", "-C", "HeroHub"]
 	console.info "Done"
 	
 	process.stdout.write "Uploading RSA Key to Heroku..."
-	cps = cp.spawn "heroku", ["keys:add", ".ssh/id_rsa.pub"]
-	await cps.on "exit", defer exitcode
+	child "heroku", ["keys:add", ".ssh/id_rsa.pub"]
 	console.info "Done"
 	
 	process.stdout.write "Creating Heroku App..."
-	cps = cp.spawn "heroku", ["apps:create"]
 	stdoe = ""
-	cps.stdout.on "data", (data) -> stdoe += data
-	cps.stderr.on "data", (data) -> stdoe += data
-	await cps.on "exit", defer exitcode
+	child "heroku", ["apps:create"], ((data) -> stdoe += data), (data) -> stdoe += data
 	url = stdoe.match(/^(http:\/\/)([^ ]+)\.([^ ]+)(\.com\/)/m)[0]
 	console.info "Done"
 	
 	process.stdout.write "Pushing Deployer App to Heroku..."
-	cps = cp.spawn "git", ["push", "heroku"]
 	stdoe = ""
-	cps.stdout.on "data", (data) -> stdoe += data
-	cps.stderr.on "data", (data) -> stdoe += data
-	await cps.on "exit", defer exitcode
+	child "git", ["push", "heroku", "HEAD"], ((data) -> stdoe += data), (data) -> stdoe += data
 	if (stdoe.match /failed/i)?
 		console.info "Failed"
 		console.error stdoe
