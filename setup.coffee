@@ -5,8 +5,7 @@ cp = require "child_process"
 verbose = process.argv.indexOf "-v" isnt -1
 
 child = (prc, args, funs...) ->
-	funOut = funErr = funExit = -> return
-	if funs.length is 1
+	funOut = funErr = funExit = null
 		funExit = funs[0]
 	else if funs.length is 2
 		funOut = funErr = funs[0]
@@ -18,10 +17,10 @@ child = (prc, args, funs...) ->
 	cps = cp.spawn prc, args
 	cps.stdout.on "data", (data) ->
 		process.stdout.write data if verbose
-		funOut data
+		funOut data if funOut?
 	cps.stderr.on "data", (data) ->
 		process.stderr.write data if verbose
-		funErr data
+		funErr data if funErr?
  	cps.on "exit", funExit
 
 main = ->	
