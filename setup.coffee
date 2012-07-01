@@ -6,6 +6,7 @@ verbose = process.argv.indexOf "-v" isnt -1
 
 child = (prc, args, funs...) ->
 	funOut = funErr = funExit = null
+	if funs.length is 1
 		funExit = funs[0]
 	else if funs.length is 2
 		funOut = funErr = funs[0]
@@ -21,7 +22,7 @@ child = (prc, args, funs...) ->
 	cps.stderr.on "data", (data) ->
 		process.stderr.write data if verbose
 		funErr data if funErr?
- 	cps.on "exit", funExit
+	cps.on "exit", funExit
 
 main = ->	
 	await fs.stat ".ssh/id_rsa", defer err, stats
