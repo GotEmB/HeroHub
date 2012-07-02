@@ -115,4 +115,4 @@ server.post "/deploy/github", (req, res, next) ->
 	do res.send
 
 # Start Server
-server.listen (port = process.env.PORT || 5000), -> console.log "Listening on #{port}"
+server.listen (port = process.env.PORT || 6276), -> console.log "Listening on #{port}"
