@@ -111,7 +111,7 @@ server.configure ->
 
 # POST Request - GitHub
 server.post "/deploy/github", (req, res, next) ->
-	processGitHub req.body.payload
+	processGitHub JSON.parse req.body.payload
 	do res.send
 
 # Start Server
