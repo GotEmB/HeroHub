@@ -70,14 +70,12 @@ doItGitHub = (ghPath, commit, targetApp, targetProvider) ->
 processGitHub = (payload) ->
 	return "Private repositories are currently not supported." if payload.repository.private
 	ghPath = "https://api.github.com/repos/#{payload.repository.owner.name}/#{payload.repository.name}"
-	return "Private repositories are currently not supported." if payload.repository.private
-	ghPath = "https://api.github.com/repos/#{payload.repository.owner.name}/#{payload.repository.name}"
 	payload.commits = payload.commits.orderByDesc (x) -> moment x.timestamp
 	doneTriggers =
 		branches: []
 		hashtags: []
 	payload.commits.forEach (commit) ->
-		await request "#{ghPath}/git/trees/#{commit.id}", defer err, tree
+		await request "#{ghPath}/git/trees/#{commit.id}", defer err, rootTree
 		unless rootTree.any((x) -> x.path is ".deploy")
 			ret += "#{commit.id}: Could not find file `.deploy`.\n"
 			return
