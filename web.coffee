@@ -27,10 +27,10 @@ cloneRepo = (repo, folder, callback) ->
 
 pushRepo = (repo, folder, commit, callback) ->
 	stderr = ""
-	git = child_p.spawn "git", ["add", "."]
+	git = child_p.spawn "git", ["add", "."], cwd: folder
 	git.stderr.on "data", (data) -> stderr += data
 	await git.on "exit", defer exitcode
-	git = child_p.spawn "git", ["commit", "-m", "Building commit #{commit}."]
+	git = child_p.spawn "git", ["commit", "-m", "Building commit #{commit}."], cwd: folder
 	git.stderr.on "data", (data) -> stderr += data
 	await git.on "exit", defer exitcode
 	if stderr.indexOf("fatal") isnt -1
