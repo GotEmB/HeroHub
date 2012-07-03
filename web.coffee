@@ -8,7 +8,7 @@ moment	= require "moment"
 child_p	= require "child_process"
 
 # Helper Methods
-String::getHashtags = -> @match /(#[A-Za-z0-9-_]+)/g
+String::getHashtags = -> @match(/(#[A-Za-z0-9-_]+)/g).select (x) -> x.replace /#/, ""
 
 log = (message) -> console.log message
 
