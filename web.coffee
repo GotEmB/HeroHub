@@ -38,7 +38,7 @@ pushRepo = (repo, folder, commit) ->
 		success:	true
 
 parseDeployString = (deployString) ->
-	deployString.content.lines (line) ->
+	deployString.lines (line) ->
 		a = line.split(":").select((x) -> do x.words)
 		app:
 			name:		a[0][1]
