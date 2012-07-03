@@ -33,6 +33,9 @@ pushRepo = (repo, folder, commit, callback) ->
 	git = child_p.spawn "git", ["commit", "-m", "Building commit #{commit}."], cwd: folder
 	git.stderr.on "data", (data) -> stderr += data
 	await git.on "exit", defer exitcode
+	git = child_p.spawn "git", ["push", "origin", "HEAD"], cwd: folder
+	git.stderr.on "data", (data) -> stderr += data
+	await git.on "exit", defer exitcode
 	if stderr.indexOf("fatal") isnt -1
 		callback
 			success:	false
