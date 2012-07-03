@@ -12,18 +12,20 @@ String::getHashtags = -> @match(/(#[A-Za-z0-9-_]+)/g).select (x) -> x.replace /#
 
 log = (message) -> console.log message
 
-cloneRepo = (repo, folder) ->
+cloneRepo = (repo, folder, callback) ->
 	stderr = ""
 	git = child_p.spawn "git", ["clone", repo, folder]
 	git.stderr.on "data", (data) -> stderr += data
 	await git.on "exit", defer exitcode
 	if stderr.indexOf("fatal") isnt -1
-		success:	false
-		message:	stderr
+		callback
+			success:	false
+			message:	stderr
 	else
-		success:	true
+		callback
+			success:	true
 
-pushRepo = (repo, folder, commit) ->
+pushRepo = (repo, folder, commit, callback) ->
 	stderr = ""
 	git = child_p.spawn "git", ["add", "."]
 	git.stderr.on "data", (data) -> stderr += data
@@ -32,10 +34,12 @@ pushRepo = (repo, folder, commit) ->
 	git.stderr.on "data", (data) -> stderr += data
 	await git.on "exit", defer exitcode
 	if stderr.indexOf("fatal") isnt -1
-		success:	false
-		message:	stderr
+		callback
+			success:	false
+			message:	stderr
 	else
-		success:	true
+		callback
+			success:	true
 
 getAppGit = (app, provider) -> "git@#{provider}.com:#{app}.git"
 
@@ -49,26 +53,29 @@ parseDeployString = (deployString) ->
 			type:		a[1][0]
 			target:		a[1][1]
 
-updateFolderFromGitHub = (ghPath, commit, folder) ->
-	recSrc = (treeUrl, folder) ->
+updateFolderFromGitHub = (ghPath, commit, folder, callback) ->
+	recSrc = (treeUrl, folder, callback) ->
 		await request treeUrl, defer err, res, body
 		tree = JSON.parse(body).tree
 		tree.forEach (node) ->
 			if node.type is "tree"
 				nf = "#{folder}/#{node.path}"
 				await fs.mkdir nf, "0777", defer err
-				recSrc node.url, nf
+				await recSrc node.url, nf, defer done
 			else if node.type is "blob"
 				await fs.writeFile "#{folder}/#{node.path}", new Buffer(node.content, node.encoding), defer err
-	recSrc "#{ghPath}/git/trees/#{commit.id}", folder
+		callback null
+	await recSrc "#{ghPath}/git/trees/#{commit.id}", folder, defer done
+	callback null
 
-doItGitHub = (ghPath, commit, targetApp, targetProvider) ->	
+doItGitHub = (ghPath, commit, targetApp, targetProvider, callback) ->	
 	folder = "sandbox/" + md5 "#{ghPath}/#{commit} -> #{targetApp}@#{targetProvider}, #{do (new Date).getTime}"
 	targetRepo = getAppGit targetApp, targetProvider
-	cR = cloneRepo targetRepo, folder
-	return cR unless cR.success
-	updateFolderFromGitHub ghPath, commit, folder
-	pushRepo targetRepo, folder, commit
+	await cloneRepo targetRepo, folder, defer cR
+	callback cR unless cR.success
+	await updateFolderFromGitHub ghPath, commit, folder, defer uR
+	await pushRepo targetRepo, folder, commit, defer pR
+	callback pR
 
 processGitHub = (payload) ->
 	return "Private repositories are currently not supported." if payload.repository.private
@@ -91,17 +98,19 @@ processGitHub = (payload) ->
 			if do target.app.provider.toLowerCase isnt "heroku"
 				log "#{payload.repository.name}:#{commit.id}/.deploy: #{target.app.provider} targets are not supported.\n"
 				return
-			runDoIt = ->
-				dTS = doItGitHub ghPath, commit, target.app.name, target.app.provider
+			runDoIt = (callback) ->
+				await doItGitHub ghPath, commit, target.app.name, target.app.provider, defer dTS
 				log "#{payload.repository.name}:#{commit.id} -> #{target.app.name}"
 				log if dTS.success then "Completed" else "Failed\n#{dTS.message}"
-				dTS.success
+				callback dTS.success
 			if do target.trigger.type.toLowerCase is "branch"
 				if branches.any ((x) -> x.name is target.trigger.target and x.commit.sha is commit.id and not doneTriggers.branches.contains x.name)
-					doneTriggers.branches.push target.trigger.target if do runDoIt
+					await runDoIt, defer ran
+					doneTriggers.branches.push target.trigger.target if ran
 			else if do target.trigger.type.toLowerCase is "hashtag"
 				if (do commit.message.getHashtags).except(doneTriggers.hashtags).contains target.trigger.target
-					doneTriggers.hashtags.push target.trigger.target if do runDoIt
+					await runDoIt, defer ran
+					doneTriggers.hashtags.push target.trigger.target if ran
 
 # Setup Server
 server = do express.createServer
