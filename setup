@@ -168,8 +168,6 @@
               });
               child("heroku", ["apps:create"], (function(data) {
                 return stdoe += data;
-              }), (function(data) {
-                return stdoe += data;
               }), __iced_deferrals.defer({
                 assign_fn: (function() {
                   return function() {
@@ -182,36 +180,70 @@
             })(function() {
               url = stdoe.match(/^(http:\/\/)([^ ]+)\.([^ ]+)(\.com\/)/m);
               console.info("Done");
-              process.stdout.write("Pushing Deployer App to Heroku..." + (verbose ? "\n" : ""));
-              stdoe = "";
+              process.stdout.write("Commiting changes..." + (verbose ? "\n" : ""));
               (function(__iced_k) {
                 __iced_deferrals = new iced.Deferrals(__iced_k, {
                   parent: ___iced_passed_deferral,
                   filename: "setup.coffee",
                   funcname: "main"
                 });
-                child("git", ["push", "heroku", "HEAD"], (function(data) {
-                  return stdoe += data;
-                }), (function(data) {
-                  return stdoe += data;
-                }), __iced_deferrals.defer({
+                child("git", ["add", "."], __iced_deferrals.defer({
                   assign_fn: (function() {
                     return function() {
                       return exitcode = arguments[0];
                     };
                   })(),
-                  lineno: 52
+                  lineno: 51
                 }));
                 __iced_deferrals._fulfill();
               })(function() {
-                if ((stdoe.match(/failed/i)) != null) {
-                  console.info("Failed");
-                  console.error(stdoe);
-                  return;
-                } else {
+                (function(__iced_k) {
+                  __iced_deferrals = new iced.Deferrals(__iced_k, {
+                    parent: ___iced_passed_deferral,
+                    filename: "setup.coffee",
+                    funcname: "main"
+                  });
+                  child("git", ["commit", "-m", "Added RSA Keys."], __iced_deferrals.defer({
+                    assign_fn: (function() {
+                      return function() {
+                        return exitcode = arguments[0];
+                      };
+                    })(),
+                    lineno: 52
+                  }));
+                  __iced_deferrals._fulfill();
+                })(function() {
                   console.info("Done");
-                }
-                return console.info("All processes completed successfully.\nYour deployer app identifier is '" + url[2] + "' and is hosted at '" + url[0] + "'.");
+                  process.stdout.write("Pushing Deployer App to Heroku..." + (verbose ? "\n" : ""));
+                  stdoe = "";
+                  (function(__iced_k) {
+                    __iced_deferrals = new iced.Deferrals(__iced_k, {
+                      parent: ___iced_passed_deferral,
+                      filename: "setup.coffee",
+                      funcname: "main"
+                    });
+                    child("git", ["push", "heroku", "HEAD"], (function(data) {
+                      return stdoe += data;
+                    }), __iced_deferrals.defer({
+                      assign_fn: (function() {
+                        return function() {
+                          return exitcode = arguments[0];
+                        };
+                      })(),
+                      lineno: 57
+                    }));
+                    __iced_deferrals._fulfill();
+                  })(function() {
+                    if ((stdoe.match(/failed/i)) != null) {
+                      console.info("Failed");
+                      console.error(stdoe);
+                      return;
+                    } else {
+                      console.info("Done");
+                    }
+                    return console.info("All processes completed successfully.\nYour deployer app identifier is '" + url[2] + "' and is hosted at '" + url[0] + "'.");
+                  });
+                });
               });
             });
           });

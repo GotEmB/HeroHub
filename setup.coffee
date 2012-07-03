@@ -43,13 +43,18 @@ main = ->
 	
 	process.stdout.write "Creating Heroku App...#{if verbose then "\n" else ""}"
 	stdoe = ""
-	await child "heroku", ["apps:create"], ((data) -> stdoe += data), ((data) -> stdoe += data), defer exitcode
+	await child "heroku", ["apps:create"], ((data) -> stdoe += data), defer exitcode
 	url = stdoe.match(/^(http:\/\/)([^ ]+)\.([^ ]+)(\.com\/)/m)
+	console.info "Done"
+	
+	process.stdout.write "Commiting changes...#{if verbose then "\n" else ""}"
+	await child "git", ["add", "."], defer exitcode
+	await child "git", ["commit", "-m", "Added RSA Keys."], defer exitcode
 	console.info "Done"
 	
 	process.stdout.write "Pushing Deployer App to Heroku...#{if verbose then "\n" else ""}"
 	stdoe = ""
-	await child "git", ["push", "heroku", "HEAD"], ((data) -> stdoe += data), ((data) -> stdoe += data), defer exitcode
+	await child "git", ["push", "heroku", "HEAD"], ((data) -> stdoe += data), defer exitcode
 	if (stdoe.match /failed/i)?
 		console.info "Failed"
 		console.error stdoe

@@ -16,7 +16,7 @@ cloneRepo = (repo, folder) ->
 	stderr = ""
 	git = child_p.spawn "git", ["clone", repo, folder]
 	git.stderr.on "data", (data) -> stderr += data
-	await git.exit.on defer exitcode
+	await git.on "exit", defer exitcode
 	if stderr.indexOf("fatal") isnt -1
 		success:	false
 		message:	stderr
@@ -27,15 +27,17 @@ pushRepo = (repo, folder, commit) ->
 	stderr = ""
 	git = child_p.spawn "git", ["add", "."]
 	git.stderr.on "data", (data) -> stderr += data
-	await git.exit.on defer exitcode
+	await git.on "exit", defer exitcode
 	git = child_p.spawn "git", ["commit", "-m", "Building commit #{commit}."]
 	git.stderr.on "data", (data) -> stderr += data
-	await git.exit.on defer exitcode
+	await git.on "exit", defer exitcode
 	if stderr.indexOf("fatal") isnt -1
 		success:	false
 		message:	stderr
 	else
 		success:	true
+
+getAppGit = (app, provider) -> "git@#{provider}.com:#{app}.git"
 
 parseDeployString = (deployString) ->
 	(do deployString.lines).select (line) ->
