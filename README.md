@@ -2,7 +2,7 @@
 Build your GitHub commits on Heroku automatically.
 
 ## Current Status
-Pre-alpha. Nothing's tested!
+Alpha. Everthing works. Need to look for leaks.
 
 ## Setting Up
 
