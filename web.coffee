@@ -57,7 +57,7 @@ updateFolderFromGitHub = (ghPath, commit, folder, callback) ->
 	recSrc = (treeUrl, folder, callback) ->
 		await request treeUrl, defer err, res, body
 		tree = JSON.parse(body).tree
-		tree.forEach (node) ->
+		ffn = (node, callback) ->
 			if node.type is "tree"
 				nf = "#{folder}/#{node.path}"
 				await fs.mkdir nf, "0777", defer err
@@ -66,6 +66,9 @@ updateFolderFromGitHub = (ghPath, commit, folder, callback) ->
 				await request node.url, defer err, res, body
 				blob = JSON.parse body
 				await fs.writeFile "#{folder}/#{node.path}", new Buffer(blob.content, blob.encoding), defer err
+			callback null
+		await for nd in tree
+			ffn nd, defer done
 		callback null
 	await recSrc "#{ghPath}/git/trees/#{commit.id}", folder, defer done
 	callback null
