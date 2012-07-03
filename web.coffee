@@ -81,11 +81,8 @@ processGitHub = (payload) ->
 		unless rootTree.any((x) -> x.path is ".deploy")
 			ret += "#{commit.id}: Could not find file `.deploy`.\n"
 			return
-		await request
-			uri: "#{ghPath}/git/blobs/#{rootTree.first((x) -> x.path is ".deploy").sha}"
-			encoding: "utf-8",
-			defer err, res, body
-		deployFile = parseDeployString JSON.parse(body).content
+		await request "#{ghPath}/git/blobs/#{rootTree.first((x) -> x.path is ".deploy").sha}", defer err, res, body
+		deployFile = new Buffer(parseDeployString(JSON.parse(body).content), JSON.parse(body).encoding).toString "utf-8"
 		await request "#{ghPath}/branches", defer err, res, body
 		branches = JSON.parse body
 		deployFile.forEach (target) ->
