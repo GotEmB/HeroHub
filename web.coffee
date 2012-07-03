@@ -105,11 +105,11 @@ processGitHub = (payload) ->
 				callback dTS.success
 			if do target.trigger.type.toLowerCase is "branch"
 				if branches.any ((x) -> x.name is target.trigger.target and x.commit.sha is commit.id and not doneTriggers.branches.contains x.name)
-					await runDoIt, defer ran
+					await runDoIt defer ran
 					doneTriggers.branches.push target.trigger.target if ran
 			else if do target.trigger.type.toLowerCase is "hashtag"
 				if (do commit.message.getHashtags).except(doneTriggers.hashtags).contains target.trigger.target
-					await runDoIt, defer ran
+					await runDoIt defer ran
 					doneTriggers.hashtags.push target.trigger.target if ran
 
 # Setup Server
