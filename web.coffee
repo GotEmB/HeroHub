@@ -49,7 +49,8 @@ parseDeployString = (deployString) ->
 
 updateFolderFromGitHub = (ghPath, commit, folder) ->
 	recSrc = (treeUrl, folder) ->
-		await request treeUrl, defer err, tree
+		await request treeUrl, defer err, res, body
+		tree = JSON.parse(body).tree
 		tree.forEach (node) ->
 			if node.type is "tree"
 				nf = "#{folder}/#{node.path}"
@@ -85,7 +86,8 @@ processGitHub = (payload) ->
 			encoding: "utf-8",
 			defer err, dF
 		deployFile = parseDeployString dF
-		await request "#{ghPath}/branches", defer err, branches
+		await request "#{ghPath}/branches", defer err, res, body
+		branches = JSON.parse body
 		deployFile.forEach (target) ->
 			if do target.app.provider.toLowerCase isnt "heroku"
 				log "#{payload.repository.name}:#{commit.id}/.deploy: #{target.app.provider} targets are not supported.\n"
