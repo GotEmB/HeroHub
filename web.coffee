@@ -76,7 +76,7 @@ processGitHub = (payload) ->
 		hashtags: []
 	payload.commits.forEach (commit) ->
 		await request "#{ghPath}/git/trees/#{commit.id}", defer err, res, body
-		rootTree = body.tree
+		rootTree = JSON.parse(body).tree
 		unless rootTree.any((x) -> x.path is ".deploy")
 			ret += "#{commit.id}: Could not find file `.deploy`.\n"
 			return
