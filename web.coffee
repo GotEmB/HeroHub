@@ -38,7 +38,7 @@ pushRepo = (repo, folder, commit) ->
 		success:	true
 
 parseDeployString = (deployString) ->
-	dF.content.lines (line) ->
+	deployString.content.lines (line) ->
 		a = line.split(":").select((x) -> do x.words)
 		app:
 			name:		a[0][1]
