@@ -61,7 +61,7 @@ updateFolderFromGitHub = (ghPath, commit, folder) ->
 	recSrc "#{ghPath}/git/trees/#{commit.id}", folder
 
 doItGitHub = (ghPath, commit, targetApp, targetProvider) ->	
-	folder = "sandbox/" + md5 rootTree + do (new Date).getTime
+	folder = "sandbox/" + md5 "#{ghPath}/#{commit} -> #{targetApp}@#{targetProvider}, #{do (new Date).getTime}"
 	targetRepo = getAppGit targetApp, targetProvider
 	cR = cloneRepo targetRepo, folder
 	return cR unless cR.success
