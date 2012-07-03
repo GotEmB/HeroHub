@@ -84,8 +84,8 @@ processGitHub = (payload) ->
 		await request
 			uri: "#{ghPath}/git/blobs/#{rootTree.first((x) -> x.path is ".deploy").sha}"
 			encoding: "utf-8",
-			defer err, dF
-		deployFile = parseDeployString dF
+			defer err, res, body
+		deployFile = parseDeployString JSON.parse(body).content
 		await request "#{ghPath}/branches", defer err, res, body
 		branches = JSON.parse body
 		deployFile.forEach (target) ->
