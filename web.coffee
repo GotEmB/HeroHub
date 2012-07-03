@@ -39,7 +39,7 @@ pushRepo = (repo, folder, commit) ->
 
 parseDeployString = (deployString) ->
 	(do deployString.lines).select (line) ->
-		a = line.split(":").select((x) -> do x.words)
+		a = line.split(":").select (x) -> do x.words
 		app:
 			name:		a[0][1]
 			provider:	a[0][0]
@@ -94,10 +94,10 @@ processGitHub = (payload) ->
 				log "#{payload.repository.name}:#{commit.id} -> #{target.app.name}"
 				log if dTS.success then "Completed" else "Failed\n#{dTS.message}"
 				dTS.success
-			if target.trigger.type.toLowerCase is "branch"
+			if do target.trigger.type.toLowerCase is "branch"
 				if branches.any ((x) -> x.name is target.trigger.target and x.commit.sha is commit.id and not doneTriggers.branches.contains x.name)
 					doneTriggers.branches.push target.trigger.target if do runDoIt
-			else if target.trigger.type.toLowerCase is "hashtag"
+			else if do target.trigger.type.toLowerCase is "hashtag"
 				if (do commit.message.getHashtags).except(doneTriggers.hashtags).contains target.trigger.target
 					doneTriggers.hashtags.push target.trigger.target if do runDoIt
 
