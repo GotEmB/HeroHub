@@ -63,7 +63,9 @@ updateFolderFromGitHub = (ghPath, commit, folder, callback) ->
 				await fs.mkdir nf, "0777", defer err
 				await recSrc node.url, nf, defer done
 			else if node.type is "blob"
-				await fs.writeFile "#{folder}/#{node.path}", new Buffer(node.content, node.encoding), defer err
+				await request node.url, defer err, res, body
+				blob = JSON.parse body
+				await fs.writeFile "#{folder}/#{node.path}", new Buffer(blob.content, blob.encoding), defer err
 		callback null
 	await recSrc "#{ghPath}/git/trees/#{commit.id}", folder, defer done
 	callback null
