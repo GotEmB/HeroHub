@@ -1,11 +1,13 @@
 # HeroHub
 Build your GitHub commits on Heroku automatically.
 
+**Note**: Only public repositories are supported as of now.
+
 ## Current Status
 Alpha. Everthing works. Need to look for leaks.
 
 ## Setting Up
-Note: You need to have [node](http://www.nodejs.org) and [heroku toolbelt](https://toolbelt.heroku.com/) installed.
+**Note**: You need to have [node](http://www.nodejs.org) and [heroku toolbelt](https://toolbelt.heroku.com/) installed.
 
 * Clone this repository.
 
