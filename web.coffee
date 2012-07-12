@@ -86,8 +86,9 @@ doItGitHub = (ghPath, commit, targetApp, targetProvider, callback) ->
 	folder = "sandbox/" + md5 "#{ghPath}/#{commit} -> #{targetApp}@#{targetProvider}, #{do (new Date).getTime}"
 	targetRepo = getAppGit targetApp, targetProvider
 	await cloneRepo targetRepo, folder, defer cR
-	callback cR unless cR.success
-	return
+	unless cR.success
+		callback cR
+		return
 	await updateFolderFromGitHub ghPath, commit, folder, defer uR
 	await pushRepo targetRepo, folder, commit, defer pR
 	callback pR
@@ -103,7 +104,6 @@ processGitHub = (payload) ->
 		branches: []
 		hashtags: []
 	for commit in payload.commits
-		log "A commit..."
 		await request "#{ghPath}/git/trees/#{commit.id}", defer err, res, body
 		rootTree = JSON.parse(body).tree
 		unless rootTree.any((x) -> x.path is ".deploy")
@@ -114,12 +114,10 @@ processGitHub = (payload) ->
 		await request "#{ghPath}/branches", defer err, res, body
 		branches = JSON.parse body
 		for target in deployFile
-			log "A target..."
 			if do target.app.provider.toLowerCase isnt "heroku"
 				log "#{payload.repository.name}:#{commit.id}/.deploy: #{target.app.provider} targets are not supported.\n"
 				return
 			runDoIt = (callback) ->
-				log "Running..."
 				await doItGitHub ghPath, commit, target.app.name, target.app.provider, defer dTS
 				log "#{payload.repository.name}:#{commit.id} -> #{target.app.name}"
 				log if dTS.success then "> Completed" else "> Failed (#{dTS.code})\n#{dTS.message}"
