@@ -94,13 +94,16 @@ doItGitHub = (ghPath, commit, targetApp, targetProvider, callback) ->
 
 processGitHub = (payload) ->
 	log "--- Job started---"
-	return "Private repositories are currently not supported." if payload.repository.private
+	if payload.repository.private
+		log "Private repositories are currently not supported."
+		return
 	ghPath = "https://api.github.com/repos/#{payload.repository.owner.name}/#{payload.repository.name}"
 	payload.commits = payload.commits.orderByDesc (x) -> moment x.timestamp
 	doneTriggers =
 		branches: []
 		hashtags: []
 	for commit in payload.commits
+		log "A commit..."
 		await request "#{ghPath}/git/trees/#{commit.id}", defer err, res, body
 		rootTree = JSON.parse(body).tree
 		unless rootTree.any((x) -> x.path is ".deploy")
@@ -110,11 +113,13 @@ processGitHub = (payload) ->
 		deployFile = parseDeployString new Buffer(JSON.parse(body).content, JSON.parse(body).encoding).toString "utf-8"
 		await request "#{ghPath}/branches", defer err, res, body
 		branches = JSON.parse body
-		deployFile.forEach (target) ->
+		for target in deployFile
+			log "A target..."
 			if do target.app.provider.toLowerCase isnt "heroku"
 				log "#{payload.repository.name}:#{commit.id}/.deploy: #{target.app.provider} targets are not supported.\n"
 				return
 			runDoIt = (callback) ->
+				log "Running..."
 				await doItGitHub ghPath, commit, target.app.name, target.app.provider, defer dTS
 				log "#{payload.repository.name}:#{commit.id} -> #{target.app.name}"
 				log if dTS.success then "> Completed" else "> Failed (#{dTS.code})\n#{dTS.message}"
