@@ -93,13 +93,14 @@ doItGitHub = (ghPath, commit, targetApp, targetProvider, callback) ->
 	callback pR
 
 processGitHub = (payload) ->
+	log "--- Job started---"
 	return "Private repositories are currently not supported." if payload.repository.private
 	ghPath = "https://api.github.com/repos/#{payload.repository.owner.name}/#{payload.repository.name}"
 	payload.commits = payload.commits.orderByDesc (x) -> moment x.timestamp
 	doneTriggers =
 		branches: []
 		hashtags: []
-	payload.commits.forEach (commit) ->
+	for commit in payload.commits
 		await request "#{ghPath}/git/trees/#{commit.id}", defer err, res, body
 		rootTree = JSON.parse(body).tree
 		unless rootTree.any((x) -> x.path is ".deploy")
@@ -126,12 +127,18 @@ processGitHub = (payload) ->
 				if (do commit.message.getHashtags).except(doneTriggers.hashtags).contains target.trigger.target
 					await runDoIt defer ran
 					doneTriggers.hashtags.push target.trigger.target if ran
+	log "--- Job completed ---"
 
 # Setup Server
 server = do express.createServer
 server.configure ->
 	server.use do express.logger
 	server.use do express.bodyParser
+
+# POST Request - GitHub
+server.post "/deploy/github", (req, res, next) ->
+	processGitHub JSON.parse req.body.payload
+	do res.send
 
 # SSH Setup
 kh = fs.createWriteStream ".ssh/known_hosts"
@@ -145,11 +152,6 @@ cp = child_p.spawn "ssh-keyscan", ["-H", "heroku.com"]
 await cp.stdout.on "data", defer data
 kh.end data
 log "Registered SSH Public keys"
-
-# POST Request - GitHub
-server.post "/deploy/github", (req, res, next) ->
-	processGitHub JSON.parse req.body.payload
-	do res.send
 
 # Start Server
 server.listen (port = process.env.PORT || 6276), -> console.log "Listening on #{port}"
