@@ -15,12 +15,14 @@ log = (message) -> console.log message
 cloneRepo = (repo, folder, callback) ->
 	stderr = ""
 	git = child_p.spawn "git", ["clone", repo, folder]
+	git.stdout.on "data", (data) -> stderr += data
 	git.stderr.on "data", (data) -> stderr += data
 	await git.on "exit", defer exitcode
 	if stderr.indexOf("fatal") isnt -1
 		callback
 			success:	false
 			message:	stderr
+			code:		1
 	else
 		callback
 			success:	true
@@ -28,18 +30,22 @@ cloneRepo = (repo, folder, callback) ->
 pushRepo = (repo, folder, commit, callback) ->
 	stderr = ""
 	git = child_p.spawn "git", ["add", "."], cwd: folder
+	git.stdout.on "data", (data) -> stderr += data
 	git.stderr.on "data", (data) -> stderr += data
 	await git.on "exit", defer exitcode
 	git = child_p.spawn "git", ["commit", "-m", "Building commit #{commit}."], cwd: folder
+	git.stdout.on "data", (data) -> stderr += data
 	git.stderr.on "data", (data) -> stderr += data
 	await git.on "exit", defer exitcode
 	git = child_p.spawn "git", ["push", "origin", "HEAD"], cwd: folder
+	git.stdout.on "data", (data) -> stderr += data
 	git.stderr.on "data", (data) -> stderr += data
 	await git.on "exit", defer exitcode
 	if stderr.indexOf("fatal") isnt -1
 		callback
 			success:	false
 			message:	stderr
+			code:		2
 	else
 		callback
 			success:	true
@@ -109,7 +115,7 @@ processGitHub = (payload) ->
 			runDoIt = (callback) ->
 				await doItGitHub ghPath, commit, target.app.name, target.app.provider, defer dTS
 				log "#{payload.repository.name}:#{commit.id} -> #{target.app.name}"
-				log if dTS.success then "Completed" else "Failed\n#{dTS.message}"
+				log if dTS.success then "> Completed" else "> Failed (#{dTS.code})\n#{dTS.message}"
 				callback dTS.success
 			if do target.trigger.type.toLowerCase is "branch"
 				if branches.any ((x) -> x.name is target.trigger.target and x.commit.sha is commit.id and not doneTriggers.branches.contains x.name)
