@@ -35,7 +35,7 @@ pushRepo = (repo, folder, commit, callback) ->
 	git.stdout.on "data", (data) -> stderr += data
 	git.stderr.on "data", (data) -> stderr += data
 	await git.on "exit", defer exitcode
-	git = child_p.spawn "git", ["commit", "-m", "Building commit #{commit.id}."], cwd: folder
+	git = child_p.spawn "git", ["commit", "-am", "Building commit #{commit.id}."], cwd: folder
 	git.stdout.on "data", (data) -> stderr += data
 	git.stderr.on "data", (data) -> stderr += data
 	await git.on "exit", defer exitcode
