@@ -87,6 +87,7 @@ doItGitHub = (ghPath, commit, targetApp, targetProvider, callback) ->
 	targetRepo = getAppGit targetApp, targetProvider
 	await cloneRepo targetRepo, folder, defer cR
 	callback cR unless cR.success
+	return
 	await updateFolderFromGitHub ghPath, commit, folder, defer uR
 	await pushRepo targetRepo, folder, commit, defer pR
 	callback pR
@@ -131,6 +132,19 @@ server = do express.createServer
 server.configure ->
 	server.use do express.logger
 	server.use do express.bodyParser
+
+# SSH Setup
+kh = fs.createWriteStream ".ssh/known_hosts"
+cp = child_p.spawn "ssh-keyscan", ["-H", "heroku.com,50.19.85.132"]
+await cp.stdout.on "data", defer data
+kh.write data
+cp = child_p.spawn "ssh-keyscan", ["-H", "50.19.85.132"]
+await cp.stdout.on "data", defer data
+kh.write data
+cp = child_p.spawn "ssh-keyscan", ["-H", "heroku.com"]
+await cp.stdout.on "data", defer data
+kh.end data
+log "Registered SSH Public keys"
 
 # POST Request - GitHub
 server.post "/deploy/github", (req, res, next) ->
