@@ -79,6 +79,7 @@ updateFolderFromGitHub = (ghPath, commit, folder, callback) ->
 		await for nd in tree
 			ffn nd, defer done
 		callback null
+	fs.readdirSync(folder).forEach (name) -> child_p.spawn "rm", ["-rf", "#{folder}/#{name}"] unless name is ".git"
 	await recSrc "#{ghPath}/git/trees/#{commit.id}", folder, defer done
 	callback null
 
@@ -94,7 +95,7 @@ doItGitHub = (ghPath, commit, targetApp, targetProvider, callback) ->
 	callback pR
 
 processGitHub = (payload) ->
-	log "--- Job started---"
+	log "--- Job started ---"
 	if payload.repository.private
 		log "Private repositories are currently not supported."
 		return
