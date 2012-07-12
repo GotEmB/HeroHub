@@ -8,7 +8,9 @@ moment	= require "moment"
 child_p	= require "child_process"
 
 # Helper Methods
-String::getHashtags = -> @match(/(#[A-Za-z0-9-_]+)/g).select (x) -> x.replace /#/, ""
+String::getHashtags = ->
+	k = @match(/(#[A-Za-z0-9-_]+)/g)
+	if k? then k.select (x) -> x.replace /#/, "" else []
 
 log = (message) -> console.log message
 
@@ -33,7 +35,7 @@ pushRepo = (repo, folder, commit, callback) ->
 	git.stdout.on "data", (data) -> stderr += data
 	git.stderr.on "data", (data) -> stderr += data
 	await git.on "exit", defer exitcode
-	git = child_p.spawn "git", ["commit", "-m", "Building commit #{commit}."], cwd: folder
+	git = child_p.spawn "git", ["commit", "-m", "Building commit #{commit.id}."], cwd: folder
 	git.stdout.on "data", (data) -> stderr += data
 	git.stderr.on "data", (data) -> stderr += data
 	await git.on "exit", defer exitcode
@@ -79,7 +81,14 @@ updateFolderFromGitHub = (ghPath, commit, folder, callback) ->
 		await for nd in tree
 			ffn nd, defer done
 		callback null
-	fs.readdirSync(folder).forEach (name) -> child_p.spawn "rm", ["-rf", "#{folder}/#{name}"] unless name is ".git"
+	for name in fs.readdirSync folder
+		if name isnt ".git"
+			stderr = ""
+			cp = child_p.spawn "rm", ["-rf", "#{folder}/#{name}"]
+			cp.stdout.on "data", (data) -> stderr += data
+			cp.stderr.on "data", (data) -> stderr += data
+			await cp.on "exit", defer exitcode
+			log "rm #{folder}/#{name}: #{stderr}" if stderr isnt ""
 	await recSrc "#{ghPath}/git/trees/#{commit.id}", folder, defer done
 	callback null
 
