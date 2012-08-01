@@ -30,7 +30,7 @@ heroku herohub: branch production
 heroku herohub-experimental: hashtag deploy-experimental
 ```
 
-In your GitHub repo > Admin > Service Hooks, add a **WebHook URL** with the url, `http://<Your-Deployer-identifier>.heroku.com/deploy`. `<Your-Deployer-identifier>` is the name of the deployer app created by setup.
+In your GitHub repo > Admin > Service Hooks, add a **WebHook URL** with the url, `http://<Your-Deployer-identifier>.heroku.com/deploy/github`. `<Your-Deployer-identifier>` is the name of the deployer app created by setup.
 
 ## Usage
 You can trigger the deployment by either:
